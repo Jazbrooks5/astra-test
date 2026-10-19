@@ -63,7 +63,7 @@ footer{font-size:.9rem}
   <footer class="muted"><p data-t="about"></p></footer>
 </main>
 <script>
-const ENDPOINT = "__ENDPOINT__";
+const ENDPOINT = "79211d9ff4d6c48be3ed8de779cf6a74";
 const PAIRS = [
   {pair:1, clips:[{pos:"A",id:"a3c85c9b"},{pos:"B",id:"9f7a8225"}]},
   {pair:2, clips:[{pos:"A",id:"de11c272"},{pos:"B",id:"c235a408"}]},
@@ -144,11 +144,20 @@ btn.addEventListener("click", async () => {
   if (miss.length) { statusEl.className = "status"; statusEl.textContent = t("missing") + miss.join(", "); return; }
   btn.disabled = true; statusEl.className = "status"; statusEl.textContent = t("saving");
   try {
-    const r = await fetch("https://formsubmit.co/ajax/" + ENDPOINT, {method:"POST",
-      headers:{"Content-Type":"application/json", Accept:"application/json"},
-      body: JSON.stringify({_subject:"ASTRA_BLIND_TEST response", _template:"box", _captcha:"false", answer: JSON.stringify(a)})});
-    const j = await r.json();
-    if (!r.ok || String(j.success) !== "true") throw new Error(j.message || r.status);
+    // The relay sometimes answers with a transient server error: retry before showing the fallback code.
+    let err;
+    for (let i = 0; i < 3; i++) {
+      try {
+        const r = await fetch("https://formsubmit.co/ajax/" + ENDPOINT, {method:"POST",
+          headers:{"Content-Type":"application/json", Accept:"application/json"},
+          body: JSON.stringify({_subject:"ASTRA_BLIND_TEST response", _template:"box", _captcha:"false", answer: JSON.stringify(a)})});
+        const j = await r.json();
+        if (r.ok && String(j.success) === "true") { err = null; break; }
+        err = new Error(j.message || r.status);
+      } catch (e) { err = e; }
+      await new Promise(res => setTimeout(res, 3000));
+    }
+    if (err) throw err;
     statusEl.className = "status ok"; statusEl.textContent = t("thanks");
   } catch (e) {
     statusEl.textContent = ""; document.getElementById("fallback").hidden = false;
