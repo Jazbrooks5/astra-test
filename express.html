@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Astra quick test</title>
+<meta name="description" content="6-minute blind test: can you tell two AI fighters' temperaments apart?">
+<style>
+:root{--bg:#f3f2f5;--surface:#fff;--fg:#1b1a22;--muted:#5d5a6b;--line:#d9d6e2;--a:#c4561c;--b:#2b6cb0;--accent:#6b3fd4;--ok:#2f7d4f;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#121118;--surface:#1c1b24;--fg:#ecebf2;--muted:#a29fb3;--line:#34323f;--a:#f08a4b;--b:#6aa8ea;--accent:#a58bf0;--ok:#5cc28a;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:32px 16px 64px;display:grid;gap:32px}
+h1,h2{font-family:"Arial Narrow",system-ui,sans-serif;text-transform:uppercase;letter-spacing:.02em;margin:0;line-height:1.05}
+h1{font-size:clamp(2rem,6vw,3.2rem)}h2{font-size:1.6rem}
+p{margin:0;max-width:65ch}.muted{color:var(--muted)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.tag{font:600 .78rem ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.lang{font:600 .9rem system-ui;background:none;border:1px solid var(--line);color:var(--fg);border-radius:999px;padding:4px 12px;cursor:pointer}
+.lede{display:grid;gap:12px}.rules{display:grid;gap:6px;padding-left:1.2em;margin:0;max-width:65ch}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;display:grid;gap:16px}
+.versus,.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:700px){.versus,.row{grid-template-columns:1fr}}
+.clip{display:grid;gap:10px;min-width:0}.clip-head{display:flex;align-items:baseline;gap:10px}
+.letter{font:700 2rem/1 "Arial Narrow",system-ui}.clip[data-pos=A] .letter{color:var(--a)}.clip[data-pos=B] .letter{color:var(--b)}
+video{width:100%;aspect-ratio:3/2;background:#000;border-radius:6px;display:block}
+label{font-weight:600}
+input[type=text],select,textarea{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;width:100%}
+textarea{font:.85rem ui-monospace,monospace;min-height:90px}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+fieldset{border:0;padding:0;margin:0;display:grid;gap:10px;min-width:0}legend{font-weight:600;padding:0;margin-bottom:8px;max-width:65ch}
+.choices{display:flex;flex-wrap:wrap;gap:8px}.choice{position:relative}.choice input{position:absolute;opacity:0}
+.choice span{display:inline-block;padding:8px 16px;border:1px solid var(--line);border-radius:999px;cursor:pointer;background:var(--bg)}
+.choice input:checked+span{border-color:var(--accent);background:var(--accent);color:var(--surface)}
+.choice input:focus-visible+span{outline:3px solid var(--accent);outline-offset:2px}
+button.go{font:700 1.2rem "Arial Narrow",system-ui;text-transform:uppercase;letter-spacing:.04em;padding:12px 28px;border-radius:8px;border:0;background:var(--accent);color:var(--surface);cursor:pointer;justify-self:start}
+button:disabled{opacity:.5;cursor:not-allowed}.status{font-weight:600}.status.ok{color:var(--ok)}
+footer{font-size:.9rem}
+</style></head><body>
+<main class="wrap">
+  <header class="lede">
+    <div class="top"><span class="tag" data-t="tag"></span><button class="lang" id="lang" type="button"></button></div>
+    <h1 data-t="title"></h1>
+    <p data-t="intro"></p>
+    <ol class="rules"><li data-t="r1"></li><li data-t="r2"></li><li data-t="r3"></li></ol>
+  </header>
+  <section class="card">
+    <h2 data-t="you"></h2>
+    <fieldset><legend data-t="expq"></legend>
+      <div class="choices">
+        <label class="choice"><input type="radio" name="exp" value="jamais"><span data-t="never"></span></label>
+        <label class="choice"><input type="radio" name="exp" value="parfois"><span data-t="some"></span></label>
+        <label class="choice"><input type="radio" name="exp" value="souvent"><span data-t="often"></span></label>
+      </div></fieldset>
+  </section>
+  <div id="pairs" style="display:grid;gap:32px"></div>
+  <section class="card">
+    <h2 data-t="send"></h2>
+    <p class="muted" data-t="sendhelp"></p>
+    <button class="go" type="button" id="submit" data-t="submit"></button>
+    <p class="status" id="status" role="status"></p>
+    <div id="fallback" hidden>
+      <p data-t="fb"></p><textarea id="code" readonly></textarea>
+    </div>
+  </section>
+  <footer class="muted"><p data-t="about"></p></footer>
+</main>
+<script>
+const ENDPOINT = "79211d9ff4d6c48be3ed8de779cf6a74";
+const PAIRS = [
+  {pair:1, clips:[{pos:"A",id:"a3c85c9b"},{pos:"B",id:"9f7a8225"}]},
+];
+const T = {
+ en:{tag:"FightingICE · 1 pair · about 90 seconds", title:"Which fighter is bold?",
+  intro:"Fighter P1 is controlled by an experimental AI. In each pair, both P1s have exactly the same skill level and the same learning mechanism. Only their “temperament” differs.",
+  r1:"Watch both short fights (under a minute each). Watch only <strong>P1</strong>, the green health bar at the top left.",
+  r2:"No need to watch to the end if you already have an opinion.",
+  r3:"Then say which one looks bold. There is no wrong answer: we measure what you perceive.",
+  you:"About you", expq:"Do you play fighting games?", never:"Never", some:"Sometimes", often:"Often",
+  fight:"Fight", words:"P1 in a few words", ph:"e.g. patient, unpredictable…",
+  pairq:"One P1 was built <strong>bold</strong> (confident, sticks with what works), the other <strong>nervous</strong> (restless, keeps switching). Which one is the bold one?",
+  dk:"I don't know", conf:"How sure are you?", choose:"Choose", c1:"1 · a guess", c3:"3 · fairly sure", c5:"5 · obvious",
+  pair:"Pair", send:"Send", sendhelp:"Your answers are anonymous. The key (who is who) is not in this page.",
+  submit:"Send my answers", missing:"Pick A, B or “I don't know” for pair ", saving:"Sending…",
+  thanks:"Thank you, your answers were received. Results will be posted in the thread where you found this test.",
+  fb:"Automatic sending failed. Please copy this code and paste it in a private message to the person who shared the test.",
+  about:"Want more? The <a href=\"./\">full test</a> has 3 pairs (6 min). · <a href=\"astra.html\">What is Astra?</a> · Research project by an independent developer: Astra, a lightweight game AI (no LLM, runs on a regular CPU) whose behavior is shaped by a simulated hormonal system. No personal data is collected.", lang:"Français"},
+ fr:{tag:"FightingICE · 1 paire · environ 90 secondes", title:"Lequel est fougueux ?",
+  intro:"Le combattant P1 est piloté par une IA expérimentale. Dans chaque paire, les deux P1 ont exactement le même niveau et la même mécanique d'apprentissage. Seul leur « tempérament » diffère.",
+  r1:"Regardez les deux courts combats (moins d’une minute chacun). Observez uniquement <strong>P1</strong>, la barre de vie verte en haut à gauche.",
+  r2:"Inutile de regarder jusqu'au bout si votre avis est fait.",
+  r3:"Puis dites lequel des deux vous paraît fougueux. Aucune réponse n'est fausse : on mesure ce que vous percevez.",
+  you:"Vous", expq:"Jouez-vous à des jeux de combat ?", never:"Jamais", some:"Parfois", often:"Souvent",
+  fight:"Combat", words:"P1 en quelques mots", ph:"par ex. patient, imprévisible…",
+  pairq:"L'un des deux P1 a été conçu <strong>fougueux</strong> (sûr de lui, insiste sur ce qui marche), l'autre <strong>nerveux</strong> (agité, change sans cesse). Lequel est le fougueux ?",
+  dk:"Je ne sais pas", conf:"Votre certitude", choose:"Choisir", c1:"1 · au hasard", c3:"3 · plutôt sûr", c5:"5 · évident",
+  pair:"Paire", send:"Envoyer", sendhelp:"Vos réponses sont anonymes. La clé (qui est qui) n'est pas dans cette page.",
+  submit:"Envoyer mes réponses", missing:"Choisissez A, B ou « Je ne sais pas » pour la paire ", saving:"Envoi…",
+  thanks:"Merci, vos réponses sont bien arrivées. Les résultats seront publiés dans le fil où vous avez trouvé ce test.",
+  fb:"L'envoi automatique a échoué. Copiez ce code et collez-le en message privé à la personne qui a partagé le test.",
+  about:"Envie d'en voir plus ? Le <a href=\"./\">test complet</a> compte 3 paires (6 min). · <a href=\"astra.html\">Qu'est-ce qu'Astra ?</a> · Projet de recherche d'un développeur indépendant : Astra, une IA de jeu légère (sans LLM, sur un processeur ordinaire) dont le comportement est façonné par un système hormonal simulé. Aucune donnée personnelle n'est collectée.", lang:"English"}};
+let lang = (new URLSearchParams(location.search).get("lang") || navigator.language || "en").startsWith("fr") ? "fr" : "en";
+const t = k => T[lang][k];
+const pairsEl = document.getElementById("pairs");
+function render() {
+  const saved = collect();
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-t]").forEach(el => el.innerHTML = t(el.dataset.t));
+  document.getElementById("lang").textContent = t("lang");
+  pairsEl.innerHTML = PAIRS.map(p => `<section class="card"><h2>${t("pair")} ${p.pair}</h2>
+    <div class="versus">${p.clips.map(c => `<div class="clip" data-pos="${c.pos}">
+      <div class="clip-head"><span class="letter">${c.pos}</span><span class="muted">${t("fight")} ${p.pair}-${c.pos}</span></div>
+      <video controls playsinline preload="metadata" src="clips/${c.id}.mp4"></video>
+</div>`).join("")}</div>
+    <fieldset><legend>${t("pairq")}</legend><div class="choices">
+      ${["A","B","?"].map(v => `<label class="choice"><input type="radio" name="pick-${p.pair}" value="${v}"><span>${v === "?" ? t("dk") : v}</span></label>`).join("")}
+    </div></fieldset>
+    <div class="row"><div class="clip"><label for="conf-${p.pair}">${t("conf")}</label>
+      <select id="conf-${p.pair}"><option value="">${t("choose")}</option><option value="1">${t("c1")}</option><option value="2">2</option><option value="3">${t("c3")}</option><option value="4">4</option><option value="5">${t("c5")}</option></select></div></div>
+  </section>`).join("");
+  restore(saved);
+}
+function collect() {
+  const val = s => document.querySelector(s)?.value ?? "";
+  return {v:1, variant:"express", lang, experience: val('input[name="exp"]:checked'),
+    pairs: PAIRS.map(p => ({pair:p.pair,
+      clips: Object.fromEntries(p.clips.map(c => [c.pos, {id:c.id, words: val(`#w-${p.pair}-${c.pos}`).trim()}])),
+      bold_pick: val(`input[name="pick-${p.pair}"]:checked`), confidence: val(`#conf-${p.pair}`)})),
+    at: new Date().toISOString()};
+}
+function restore(a) {
+  a.pairs.forEach(p => {
+    Object.entries(p.clips).forEach(([pos, c]) => { const el = document.getElementById(`w-${p.pair}-${pos}`); if (el) el.value = c.words; });
+    if (p.bold_pick) { const r = document.querySelector(`input[name="pick-${p.pair}"][value="${p.bold_pick}"]`); if (r) r.checked = true; }
+    const s = document.getElementById(`conf-${p.pair}`); if (s) s.value = p.confidence;
+  });
+}
+document.getElementById("lang").addEventListener("click", () => { lang = lang === "fr" ? "en" : "fr"; render(); });
+render();
+const statusEl = document.getElementById("status"), btn = document.getElementById("submit");
+btn.addEventListener("click", async () => {
+  const a = collect();
+  const miss = a.pairs.filter(p => !p.bold_pick).map(p => p.pair);
+  if (miss.length) { statusEl.className = "status"; statusEl.textContent = t("missing") + miss.join(", "); return; }
+  btn.disabled = true; statusEl.className = "status"; statusEl.textContent = t("saving");
+  try {
+    // The relay sometimes answers with a transient server error: retry before showing the fallback code.
+    let err;
+    for (let i = 0; i < 3; i++) {
+      try {
+        const r = await fetch("https://formsubmit.co/ajax/" + ENDPOINT, {method:"POST",
+          headers:{"Content-Type":"application/json", Accept:"application/json"},
+          body: JSON.stringify({_subject:"ASTRA_BLIND_TEST response", _template:"box", _captcha:"false", answer: JSON.stringify(a)})});
+        const j = await r.json();
+        if (r.ok && String(j.success) === "true") { err = null; break; }
+        err = new Error(j.message || r.status);
+      } catch (e) { err = e; }
+      await new Promise(res => setTimeout(res, 3000));
+    }
+    if (err) throw err;
+    statusEl.className = "status ok"; statusEl.textContent = t("thanks");
+  } catch (e) {
+    statusEl.textContent = ""; document.getElementById("fallback").hidden = false;
+    document.getElementById("code").value = JSON.stringify(a); btn.disabled = false;
+  }
+});
+</script>
+</body></html>

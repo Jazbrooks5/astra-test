@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Astra game AI</title>
+<meta name="description" content="Astra: a lightweight game AI with a temperament. Learns while playing, no LLM, CPU only.">
+<style>
+:root{--bg:#f3f2f5;--surface:#fff;--fg:#1b1a22;--muted:#5d5a6b;--line:#d9d6e2;--accent:#6b3fd4;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#121118;--surface:#1c1b24;--fg:#ecebf2;--muted:#a29fb3;--line:#34323f;--accent:#a58bf0;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:40px 16px 72px;display:grid;gap:40px}
+h1,h2{font-family:"Arial Narrow",system-ui,sans-serif;text-transform:uppercase;letter-spacing:.02em;margin:0;line-height:1.05}
+h1{font-size:clamp(2.2rem,7vw,3.6rem)}h2{font-size:1.6rem}
+p,li{max-width:68ch}p{margin:0}.muted{color:var(--muted)}a{color:var(--accent)}
+.tag{font:600 .78rem ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+section{display:grid;gap:14px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:4px}
+.stat b{font:700 2rem/1 "Arial Narrow",system-ui}
+video{width:100%;aspect-ratio:3/2;background:#000;border-radius:8px;display:block}
+ul{margin:0;padding-left:1.2em;display:grid;gap:6px}
+.cta{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;display:grid;gap:12px}
+.btn{display:inline-block;justify-self:start;background:var(--accent);color:var(--surface);text-decoration:none;font:700 1.1rem "Arial Narrow",system-ui;text-transform:uppercase;letter-spacing:.04em;padding:12px 24px;border-radius:8px}
+</style></head><body>
+<main class="wrap">
+  <header style="display:grid;gap:14px">
+    <span class="tag">Experimental game AI · independent project</span>
+    <h1>Astra: a game AI with a temperament</h1>
+    <p>Astra learns to play while it plays, by trial and error. No LLM, no GPU, no pre-written decision tree. A simulated hormonal system (dopamine, cortisol, adrenaline) sets its rhythm: how much it explores, how long it sticks with a move, how much risk it takes.</p>
+    <p>Change the hormones' physiology, and the same AI fights with a different character.</p>
+  </header>
+
+  <section>
+    <h2>Watch it fight</h2>
+    <video controls playsinline preload="metadata" src="clips/9f7a8225.mp4"></video>
+    <p class="muted">P1 (top-left health bar) is Astra, in <a href="https://www.ice.ci.ritsumei.ac.jp/~ftgaic/">FightingICE</a>, against MctsAi23i, a Monte-Carlo tree search opponent.</p>
+  </section>
+
+  <section>
+    <h2>What we measured</h2>
+    <p>Two temperaments, same brain: <strong>bold</strong> (dopamine very reactive, stress cleared fast) and <strong>nervous</strong> (stress very reactive and slow to clear). Three independent lives each, 20 rounds per life, analysis written before the runs.</p>
+    <div class="stats">
+      <div class="stat"><b>82%</b><span class="muted">of 120 rounds: a classifier names the temperament from play style alone (chance: 50%)</span></div>
+      <div class="stat"><b>22% vs 5%</b><span class="muted">of moves repeated: the bold one sticks with what works</span></div>
+      <div class="stat"><b>2.4×</b><span class="muted">more jumps for the nervous one, with a more varied move set</span></div>
+      <div class="stat"><b>58 / 60</b><span class="muted">rounds won by each temperament against MctsAi23i</span></div>
+    </div>
+    <p>Astra also learns within a single life: after training, it beats a random player by about 110 to 125 health points per round against the same opponent.</p>
+  </section>
+
+  <section>
+    <h2>What we do not claim</h2>
+    <ul>
+      <li>The hormones do not make Astra stronger. A first run suggested they did; it did not replicate on three new lives.</li>
+      <li>Whether human players actually <em>see</em> the temperament difference is still open: that is what the <a href="express.html">90-second test</a> measures.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Why it might matter for your game</h2>
+    <ul>
+      <li>NPCs and opponents with a stable personality that emerges from play, instead of hand-tuned scripts.</li>
+      <li>Light: learns online, runs on an ordinary CPU, no network calls.</li>
+      <li>The same mechanism is being tried in other genres (racing, sandbox).</li>
+    </ul>
+  </section>
+
+  <div class="cta">
+    <h2>Interested, sceptical, curious?</h2>
+    <p>Game developer who would like to try Astra, or just have a question or an objection? Leave a message: I read everything.</p>
+    <a class="btn" href="https://github.com/Jazbrooks5/astra-test/issues/new?title=Contact%3A%20&body=Who%20I%20am%20%2F%20my%20game%3A%0A%0AWhat%20I%27d%20like%20to%20know%20or%20try%3A%0A">Leave a message</a>
+    <p class="muted">Needs a free GitHub account. You can also take the <a href="express.html">90-second test</a> or the <a href="./">full test</a>.</p>
+  </div>
+</main>
+</body></html>

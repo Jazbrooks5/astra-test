@@ -83,7 +83,7 @@ const T = {
   submit:"Send my answers", missing:"Pick A, B or “I don't know” for pair ", saving:"Sending…",
   thanks:"Thank you, your answers were received. Results will be posted in the thread where you found this test.",
   fb:"Automatic sending failed. Please copy this code and paste it in a private message to the person who shared the test.",
-  about:"Research project by an independent developer: Astra, a lightweight game AI (no LLM, runs on a regular CPU) whose behavior is shaped by a simulated hormonal system. No personal data is collected.", lang:"Français"},
+  about:"<a href=\"astra.html\">What is Astra?</a> · Research project by an independent developer: Astra, a lightweight game AI (no LLM, runs on a regular CPU) whose behavior is shaped by a simulated hormonal system. No personal data is collected.", lang:"Français"},
  fr:{tag:"FightingICE · 3 paires · environ 6 minutes", title:"Deux caractères, trois combats",
   intro:"Le combattant P1 est piloté par une IA expérimentale. Dans chaque paire, les deux P1 ont exactement le même niveau et la même mécanique d'apprentissage. Seul leur « tempérament » diffère.",
   r1:"Regardez les deux combats de la paire (de 30 secondes à 1 minute chacun). Observez uniquement <strong>P1</strong>, la barre de vie verte en haut à gauche.",
@@ -97,7 +97,7 @@ const T = {
   submit:"Envoyer mes réponses", missing:"Choisissez A, B ou « Je ne sais pas » pour la paire ", saving:"Envoi…",
   thanks:"Merci, vos réponses sont bien arrivées. Les résultats seront publiés dans le fil où vous avez trouvé ce test.",
   fb:"L'envoi automatique a échoué. Copiez ce code et collez-le en message privé à la personne qui a partagé le test.",
-  about:"Projet de recherche d'un développeur indépendant : Astra, une IA de jeu légère (sans LLM, sur un processeur ordinaire) dont le comportement est façonné par un système hormonal simulé. Aucune donnée personnelle n'est collectée.", lang:"English"}};
+  about:"<a href=\"astra.html\">Qu'est-ce qu'Astra ?</a> · Projet de recherche d'un développeur indépendant : Astra, une IA de jeu légère (sans LLM, sur un processeur ordinaire) dont le comportement est façonné par un système hormonal simulé. Aucune donnée personnelle n'est collectée.", lang:"English"}};
 let lang = (new URLSearchParams(location.search).get("lang") || navigator.language || "en").startsWith("fr") ? "fr" : "en";
 const t = k => T[lang][k];
 const pairsEl = document.getElementById("pairs");
